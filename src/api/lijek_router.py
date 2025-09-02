@@ -17,12 +17,21 @@ async def get_med(id: int, db: Session = Depends(get_db), current_user= Depends(
     return db_lijek
 
 @router.post("")
-async def create_med(med: LijekCreate, db: Session = Depends(get_db), current_user= Depends(admin_required)):
-    db_lijek = await LijekService.create_med(med, db)
+async def create_med(med: LijekCreate, db: Session = Depends(get_db), current_user= Depends(get_current_user)):
+    med_dict = med.model_dump() if hasattr(med, 'model_dump') else med.dict()
+    # Svi lijekovi dodani od korisnika (ne iz excelice) moraju imati accepted=False
+    med_dict["accepted"] = False
+    db_lijek = await LijekService.create_med(med_dict, db)
     if not db_lijek:
         raise HTTPException(status_code=404, detail="Lijek nije pronađen")
     return db_lijek
 
+@router.post("/{id}/approve")
+async def approve_med(id: int, db: Session = Depends(get_db), current_user= Depends(admin_required)):
+    db_lijek = await LijekService.approve_med(id, db)
+    if not db_lijek:
+        raise HTTPException(status_code=404, detail="Lijek nije pronađen")
+    return db_lijek
 
 @router.delete("/{id}")
 async def delete_med(id: int, db: Session = Depends(get_db), current_user= Depends(admin_required)):
@@ -31,6 +40,15 @@ async def delete_med(id: int, db: Session = Depends(get_db), current_user= Depen
         raise HTTPException(status_code=404, detail="Lijek nije pronađen")
     return db_lijek 
 
-@router.get("")
-async def get_all_meds(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    return await LijekService.get_all_meds(db)
+
+@router.get("") 
+async def get_all_meds(db: Session = Depends(get_db)):
+    # Always return all meds, regardless of user
+    return await LijekService.get_all_meds(db, None)
+
+@router.get("/requests")
+async def get_requested_meds(db: Session = Depends(get_db), current_user=Depends(admin_required)):
+    return await LijekService.get_requested_meds(db)
+
+
+

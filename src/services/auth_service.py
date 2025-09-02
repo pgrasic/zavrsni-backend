@@ -1,3 +1,4 @@
+import os
 from sqlalchemy.orm import Session
 from src.models.user import Korisnik
 from src.schemas.auth_schema import RegisterSchema, LoginSchema
@@ -6,7 +7,7 @@ import jwt
 from datetime import datetime, timedelta
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SECRET_KEY = "supersecretkey"  # Change to env var in production
+SECRET_KEY = os.getenv("SECRET_KEY")  # Change to env var in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -50,7 +51,7 @@ class AuthService:
     def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
         to_encode = data.copy()
         expire = datetime.utcnow() + expires_delta
-        to_encode.update({"exp": expire})
+        to_encode.update({"exp": expire, "iat": datetime.now()})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 

@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
+from fastapi.security import HTTPBearer
 
 load_dotenv()
 
@@ -14,14 +15,34 @@ from src.api.lijek_router import router as lijek_router
 from src.api.auth_router import router as auth_router
 from src.api.korisnik_lijek_router import router as korisnik_lijek_router
 from src.api.stats_router import router as stats_router
-from os import environ as env
 
 app = FastAPI(
     title="Medication Reminder Backend",
     description="Backend API for medication reminders and management",
     version="1.0.0",
 )
-app.secret_key = env.get("SECRET_KEY")
+
+# JWT security scheme for Swagger UI
+app.openapi_schema = None
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = FastAPI.openapi(app)
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+        }
+    }
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            method["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 app.add_middleware(
     CORSMiddleware,

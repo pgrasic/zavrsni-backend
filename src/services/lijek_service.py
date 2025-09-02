@@ -29,6 +29,7 @@ class LijekService:
                 djelatna_tvar_row = db.query(DjelatnaTvar.id).filter_by(naziv=record.get("Djelatna tvar")).first()
                 if djelatna_tvar_row:
                     mapped["idDjelatnaTvar"] = djelatna_tvar_row.id
+                mapped["accepted"] = True  # Imported meds are always accepted
                 existing = db.query(Lijek).filter_by(naziv=mapped["naziv"]).first()
                 if not existing:
                     lijek = Lijek(**mapped)
@@ -74,4 +75,47 @@ class LijekService:
             return imported
         except Exception as e:
             raise ValueError(f"Error processing Excel file: {e}")
-            
+
+    @staticmethod
+    async def get_requested_meds(db):
+        return db.query(Lijek).filter_by(accepted=False).all()
+
+    @staticmethod
+    async def create_med(med_dict, db):
+        # Ako korisnik ne šalje idDjelatnaTvar, ne traži ga
+        med_dict = dict(med_dict)
+        if "idDjelatnaTvar" in med_dict and med_dict["idDjelatnaTvar"] is None:
+            med_dict.pop("idDjelatnaTvar")
+        lijek = Lijek(**med_dict)
+        db.add(lijek)
+        db.commit()
+        db.refresh(lijek)
+        return lijek
+
+    @staticmethod
+    async def approve_med(id, db):
+        lijek = db.query(Lijek).filter_by(id=id).first()
+        if not lijek:
+            return None
+        lijek.accepted = True
+        db.commit()
+        db.refresh(lijek)
+        return lijek
+
+    @staticmethod
+    async def delete_med(id, db):
+        lijek = db.query(Lijek).filter_by(id=id).first()
+        if not lijek:
+            return None
+        db.delete(lijek)
+        db.commit()
+        return lijek
+
+    @staticmethod
+    async def get_med(id, db):
+        return db.query(Lijek).filter_by(id=id).first()
+
+    @staticmethod
+    async def get_all_meds(db, current_user=None):
+        # Ignore current_user, always return all meds
+        return db.query(Lijek).all()

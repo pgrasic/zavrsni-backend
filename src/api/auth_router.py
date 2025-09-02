@@ -17,7 +17,7 @@ def register(user: RegisterSchema, db: Session = Depends(get_db)):
         access_token = AuthService.create_access_token({"sub": str(db_user.id)})
         return {"access_token": access_token, "token_type": "bearer"}
     except Exception as e:
-        print("Error occurred during registration:", e)
+        raise HTTPException(status_code=400, detail=str(e))
 
 #@router.get("/me")
 #async def get_me():

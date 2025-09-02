@@ -13,6 +13,6 @@ class Lijek(Base):
     nestasica = Column(Boolean, nullable=False)
     korisnici = relationship("Korisnik", secondary=korisnik_lijek, back_populates="lijekovi")
     djelatne_tvari = relationship("DjelatnaTvar", secondary=djelatna_tvar_lijek, back_populates="lijekovi")
-    
+    accepted = Column(Boolean, default=False)
 
 from src.models.user import Korisnik

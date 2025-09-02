@@ -10,7 +10,6 @@ class KorisnikLijekService:
 			)
 		)
 		return stmt.fetchall()
-
 	@staticmethod
 	async def update_status(korisnik_id, lijek_id, status, db: Session):
 		stmt = db.execute(

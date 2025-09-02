@@ -1,15 +1,15 @@
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, Request
 from src.utils.auth0 import verify_jwt
 from src.db.database import get_db
 from src.models.user import Korisnik
 from sqlalchemy.orm import Session
 
-security = HTTPBearer()
-
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    authorization = request.headers.get("authorization")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Nedozvoljen pristup")
     try:
-        token = credentials.credentials
+        token = authorization.split(" ")[1]
     except Exception:
         raise HTTPException(status_code=401, detail="Nedozvoljen pristup")
     payload = verify_jwt(token)

@@ -38,6 +38,8 @@ def get_due_reminders(db: Session):
     for r in results:
         elapsed = (now - r.pocetno_vrijeme).total_seconds()
         interval = r.razmak_sati * 3600
+        if interval == 0:
+            continue  # skip reminders with zero interval to avoid ZeroDivisionError
         if elapsed >= 0 and (elapsed % interval) < 60:
             due.append(r)
     return due
