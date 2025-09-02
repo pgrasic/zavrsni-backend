@@ -14,12 +14,14 @@ from src.api.lijek_router import router as lijek_router
 from src.api.auth_router import router as auth_router
 from src.api.korisnik_lijek_router import router as korisnik_lijek_router
 from src.api.stats_router import router as stats_router
+from os import environ as env
 
 app = FastAPI(
     title="Medication Reminder Backend",
     description="Backend API for medication reminders and management",
     version="1.0.0",
 )
+app.secret_key = env.get("SECRET_KEY")
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,14 +31,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 app.include_router(user_router, prefix="/korisnici", tags=["Korisnici"])
 app.include_router(lijek_router, prefix="/lijekovi", tags=["Lijekovi"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(korisnik_lijek_router, prefix="/korisnik-lijek", tags=["KorisnikLijek"])
 app.include_router(stats_router, prefix="/stats", tags=["Stats"])
-    
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from src.db.database import SessionLocal
+from src.services.reminder_service import process_reminders
+
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    def job():
+        db = SessionLocal()
+        import asyncio
+        asyncio.run(process_reminders(db))
+        db.close()
+    scheduler.add_job(job, 'interval', minutes=1)
+    scheduler.start()
+
+@app.on_event("startup")
+def startup_event():
+    start_scheduler()
+
 @app.get("/")
 async def root():
     return {"message": "Medication Reminder Backend API", "version": "1.0.0", "docs": "/docs"}

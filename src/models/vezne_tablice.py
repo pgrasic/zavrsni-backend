@@ -9,7 +9,8 @@ korisnik_lijek = Table(
     Column("lijek_id", Integer, ForeignKey("lijekovi.id")),
     Column("pocetno_vrijeme", DateTime, nullable=False),
     Column("razmak_sati", Integer, nullable=False),
-    Column("kolicina", Integer, nullable=False, default=1)
+    Column("kolicina", Integer, nullable=False, default=1),
+    Column("status", String, nullable=False, default="pending")
 )
 
 djelatna_tvar_lijek = Table(

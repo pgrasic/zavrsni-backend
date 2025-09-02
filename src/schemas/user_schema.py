@@ -4,7 +4,6 @@ class UserCreate(BaseModel):
     ime: str
     prezime: str
     email: EmailStr
-    broj_telefona: str
     lozinka: str
 
 class UserRead(BaseModel):
@@ -12,7 +11,6 @@ class UserRead(BaseModel):
     ime: str
     prezime: str
     email: EmailStr
-    broj_telefona: str
 
     class Config:
         orm_mode = True

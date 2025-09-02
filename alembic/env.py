@@ -45,7 +45,7 @@ import src.models.user
 import src.models.lijek
 import src.models.djelatna_tvar
 import src.models.vezne_tablice
-import src.models.kategorije
+#import src.models.kategorije
 # Add any other model imports here as you create them.
 
 # 3. Set target_metadata to the metadata of the SINGLE Base instance.

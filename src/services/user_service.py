@@ -1,3 +1,4 @@
+
 from sqlalchemy.orm import Session
 from src.models.user import Korisnik
 from src.schemas.user_schema import UserCreate, UserUpdate
@@ -17,8 +18,7 @@ class UserService:
         db_user = Korisnik(
             ime=user.ime,
             prezime=user.prezime,
-            #email=user.email,
-            broj_telefona=user.broj_telefona,
+            email=user.email,
             hashed_lozinka=hashed_lozinka
         )
         db.add(db_user)
