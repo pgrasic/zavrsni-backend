@@ -1,4 +1,5 @@
 # app/routers/korisnik_lijek.py
+import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import List
 from src.services.korisnik_lijek_service import KorisnikLijekService
@@ -38,24 +39,24 @@ async def delete(lijek_id: int, db: Session = Depends(get_db), current_user = De
 
 @router.post("/{lijek_id}/confirm")
 async def confirm_reminder(lijek_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    result = await KorisnikLijekService.update_status(current_user.id, lijek_id, "confirmed", db)
+    result = await KorisnikLijekService.create_reminder(current_user.id, lijek_id, "confirmed", db, changed_at=datetime.datetime.now())
     if not result:
         raise HTTPException(status_code=404, detail="Podsjetnik nije pronađen")
     return {"message": "Podsjetnik potvrđen"}
 
-@router.post("/{lijek_id}/postpone")
-async def postpone_reminder(lijek_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    result = await KorisnikLijekService.update_status(current_user.id, lijek_id, "postponed", db)
-    if not result:
-        raise HTTPException(status_code=404, detail="Podsjetnik nije pronađen")
-    return {"message": "Podsjetnik odgođen"}
-
 @router.post("/{lijek_id}/skip")
 async def skip_reminder(lijek_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    result = await KorisnikLijekService.update_status(current_user.id, lijek_id, "skipped", db)
+    result = await KorisnikLijekService.update_status_skipped(current_user.id, lijek_id, "skipped", db)
     if not result:
         raise HTTPException(status_code=404, detail="Podsjetnik nije pronađen")
     return {"message": "Podsjetnik preskočen"}
+
+@router.post("/{lijek_id}/snooze")
+async def snooze_reminder(lijek_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    result = await KorisnikLijekService.update_status_snooze(current_user.id, lijek_id, "snoozed", db)
+    if not result:
+        raise HTTPException(status_code=404, detail="Podsjetnik nije pronađen")
+    return {"message": "Podsjetnik odgođen"}
 
 @router.get("", response_model=List[KorisnikLijekRead])
 async def get_all(db: Session = Depends(get_db), current_user = Depends(get_current_user)):

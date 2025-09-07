@@ -40,7 +40,7 @@ class AuthService:
         if not db_user or not pwd_context.verify(user.lozinka, db_user.hashed_lozinka):
             return None
         # Generate JWT token
-        access_token = AuthService.create_access_token({"sub": str(db_user.id)})
+        access_token = AuthService.create_access_token({"sub": str(db_user.id), "email": db_user.email, "is_admin": db_user.is_admin})
         return {"user": db_user, "access_token": access_token}
 
     @staticmethod

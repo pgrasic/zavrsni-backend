@@ -1,6 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from .vezne_tablice import korisnik_lijek, djelatna_tvar_lijek
 from sqlalchemy.orm import relationship
+from src.models.user import Korisnik
 
 from .base import Base
 
@@ -15,4 +16,3 @@ class Lijek(Base):
     djelatne_tvari = relationship("DjelatnaTvar", secondary=djelatna_tvar_lijek, back_populates="lijekovi")
     accepted = Column(Boolean, default=False)
 
-from src.models.user import Korisnik

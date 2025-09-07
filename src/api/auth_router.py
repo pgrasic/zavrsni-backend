@@ -10,7 +10,6 @@ router = APIRouter()
 @router.post("/register", response_model=TokenSchema)
 def register(user: RegisterSchema, db: Session = Depends(get_db)):
     try:
-        print("Register route called", user.email)
         db_user = AuthService.register(user, db)
         if not db_user:
             raise HTTPException(status_code=400, detail="Neuspješna registracija")
@@ -19,9 +18,7 @@ def register(user: RegisterSchema, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-#@router.get("/me")
-#async def get_me():
-#    pass
+
 
 @router.post("/login", response_model=TokenSchema)
 def login(user: LoginSchema, db: Session = Depends(get_db)):

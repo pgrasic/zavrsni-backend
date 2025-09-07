@@ -45,6 +45,7 @@ import src.models.user
 import src.models.lijek
 import src.models.djelatna_tvar
 import src.models.vezne_tablice
+import src.models.reminders_log
 #import src.models.kategorije
 # Add any other model imports here as you create them.
 

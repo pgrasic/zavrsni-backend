@@ -1,12 +1,14 @@
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.security import HTTPBearer
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
 
-from src.db.database import engine
+from src.services import reminder_service
+from src.db.database import engine, get_db
 from src.models.base import Base
 Base.metadata.create_all(bind=engine)
 
@@ -73,7 +75,8 @@ def start_scheduler():
     scheduler.start()
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
+    print("Starting up...")
     start_scheduler()
 
 @app.get("/")
