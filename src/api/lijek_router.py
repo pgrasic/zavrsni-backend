@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from src.schemas.lijek_schema import LijekCreate, LijekRead
+from src.schemas.lijek_schema import LijekCreate
 from src.services.lijek_service import LijekService
 from src.utils.dependencies import get_current_user
 from src.utils.dependencies import admin_required
@@ -18,8 +18,7 @@ async def get_med(id: int, db: Session = Depends(get_db), current_user= Depends(
 
 @router.post("")
 async def create_med(med: LijekCreate, db: Session = Depends(get_db), current_user= Depends(get_current_user)):
-    med_dict = med.model_dump() if hasattr(med, 'model_dump') else med.dict()
-    # Svi lijekovi dodani od korisnika (ne iz excelice) moraju imati accepted=False
+    med_dict = med.model_dump() 
     med_dict["accepted"] = False
     db_lijek = await LijekService.create_med(med_dict, db)
     if not db_lijek:
@@ -43,7 +42,6 @@ async def delete_med(id: int, db: Session = Depends(get_db), current_user= Depen
 
 @router.get("") 
 async def get_all_meds(db: Session = Depends(get_db)):
-    # Always return all meds, regardless of user
     return await LijekService.get_all_meds(db, None)
 
 @router.get("/requests")
