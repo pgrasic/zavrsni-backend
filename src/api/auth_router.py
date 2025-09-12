@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException,status
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException
 from src.schemas.auth_schema import RegisterSchema, TokenSchema, LoginSchema
 from src.services.auth_service import AuthService
 from src.db.database import get_db

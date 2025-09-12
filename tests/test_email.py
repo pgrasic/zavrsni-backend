@@ -1,7 +1,6 @@
-import os
 from dotenv import load_dotenv
 load_dotenv()
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+from fastapi_mail import MessageSchema
 import asyncio
 from src.utils.mail_config import fast_mail
 from fastapi_mail import MessageSchema

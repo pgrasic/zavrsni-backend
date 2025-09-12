@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, Request
-from src.utils.auth0 import verify_jwt
+from src.utils.auth import verify_jwt
 from src.db.database import get_db
 from src.models.user import Korisnik
 from sqlalchemy.orm import Session
@@ -20,7 +20,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     return user
 
 
-def admin_required(current_user: Korisnik = Depends(get_current_user)):
+def admin_required(current_user = Depends(get_current_user)):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Nedozvoljen pristup")
     return current_user

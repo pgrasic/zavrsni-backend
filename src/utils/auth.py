@@ -14,14 +14,12 @@ def get_jwk():
 
 def verify_jwt(token: str):
     unverified_header = jwt.get_unverified_header(token)
-    # If HS256, verify with SECRET_KEY
     if unverified_header.get("alg") == "HS256":
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
             return payload
         except Exception:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    # If RS256, verify with Auth0
     jwks = get_jwk()
     rsa_key = {}
     if "kid" not in unverified_header:

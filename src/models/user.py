@@ -9,8 +9,8 @@ class Korisnik(Base):
     id = Column(Integer, primary_key=True, index=True)
     ime = Column(String, index=True, nullable=False)
     prezime = Column(String, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)  # email moze biti null
+    email = Column(String, unique=True, index=True, nullable=False)  
     hashed_lozinka = Column(String, nullable=False)
-    is_admin = Column(Boolean, default=False)   # false je obicni korisnik, a true je admin
+    is_admin = Column(Boolean, default=False)  
 
     lijekovi = relationship("Lijek", secondary=korisnik_lijek, back_populates="korisnici")

@@ -23,6 +23,5 @@ def test_send_user_meds_email(db_session):
     subject = "Your Medications"
     body = f"Hello {user.ime},\n\nHere are your medications:\n{med_list}"
 
-    # Send email (mock or real,  on your setup)
     result = send_email(to=user.email, subject=subject, body=body)
-    assert result  # Adjust assertion to your send_email return value
+    assert result 

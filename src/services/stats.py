@@ -8,7 +8,7 @@ class StatsService:
     @staticmethod
     async def get_stats(db: Session):
         sent_reminders = await KorisnikLijekService.get_all(db)
-        confirmed_reminders = sum(1 for t in sent_reminders if getattr(t, 'status', None) == "confirmed")
+        confirmed_reminders = await KorisnikLijekService.get_all_confirmed_reminders(db)
         total_users = db.query(Korisnik).count()
         total_meds = db.query(Lijek).count()
         lijekova_po_korisniku = Counter(getattr(t, 'korisnik_id', None) for t in sent_reminders)
@@ -22,7 +22,7 @@ class StatsService:
             "total_users": total_users,
             "total_meds": total_meds,
             "sent_reminders": len(sent_reminders),
-            "confirmed_reminders": confirmed_reminders,
+            "confirmed_reminders": len(confirmed_reminders),
             "most_loaded_user": most_loaded_user,
             "lijek_relative": lijek_relative
         }

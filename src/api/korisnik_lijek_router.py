@@ -1,6 +1,6 @@
 # app/routers/korisnik_lijek.py
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from src.services.korisnik_lijek_service import KorisnikLijekService
 from src.schemas.korisnik_lijek_schema import KorisnikLijekCreate, KorisnikLijekRead

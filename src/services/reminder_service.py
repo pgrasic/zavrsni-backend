@@ -32,7 +32,6 @@ async def send_reminder_email(to_email, lijek_naziv, kolicina, korisnik_id, lije
         f"<p><a href=\"{confirm_url}\">Potvrdi uzimanje</a></p>"
         f"<p><a href=\"{postpone_url}\">Odgodi</a></p>"
         f"<p><a href=\"{skip_url}\">Preskoči</a></p>"
-        f"<hr><h4>Text fallback</h4><pre style=\"white-space:pre-wrap;\">{plain_body}</pre>"
     )
     subject = f"Podsjetnik za lijek: {lijek_naziv}"
     message = MessageSchema(
@@ -68,4 +67,4 @@ async def process_reminders(db: Session):
         print("Processing reminder for user:", user.email if user else "Unknown user")
         lijek = db.query(Lijek).filter_by(id=r.lijek_id).first()
         if user and lijek:
-            await send_reminder_email(user.email, lijek.naziv, r.kolicina, r.korisnik_id, r.lijek_id, nestasica=bool(lijek.nestasica))
+                await send_reminder_email(user.email, lijek.naziv, r.kolicina, r.korisnik_id, r.lijek_id, nestasica=bool(lijek.nestasica))

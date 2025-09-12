@@ -1,4 +1,3 @@
-from uuid import uuid4
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -15,6 +14,5 @@ class RemindersLog(Base):
     status = Column(String, nullable=False)
     changed_at = Column(DateTime, default=datetime.now(), nullable=False)
 
-    # optional relationships
     korisnik = relationship("Korisnik", backref="reminder_logs")
     lijek = relationship("Lijek", backref="reminder_logs")

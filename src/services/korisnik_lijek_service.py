@@ -3,6 +3,7 @@ import datetime
 from src.models.reminders_log import RemindersLog
 from src.models.vezne_tablice import korisnik_lijek
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 class KorisnikLijekService:
 	@staticmethod
@@ -22,7 +23,7 @@ class KorisnikLijekService:
 			).values(status=status, pocetno_vrijeme=datetime.datetime.now() + datetime.timedelta(hours=1))
 		)
 		await KorisnikLijekService.create_reminder(korisnik_id, lijek_id, status, db, changed_at=datetime.datetime.now() + datetime.timedelta(hours=1))
-		return stmt.rowcount > 0
+		return stmt
 	@staticmethod
 	async def update_status_skipped(korisnik_id, lijek_id, status, db: Session):
 		stmt = db.execute(
@@ -101,3 +102,11 @@ class KorisnikLijekService:
 			korisnik_lijek.select()
 		)
 		return stmt.fetchall()
+
+	@staticmethod
+	async def get_all_confirmed_reminders(db: Session):
+		stmt = db.execute(
+			select(RemindersLog).where(RemindersLog.status == "confirmed")
+		)
+		# return ORM objects
+		return stmt.scalars().all()

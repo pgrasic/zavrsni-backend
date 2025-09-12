@@ -1,7 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from .vezne_tablice import korisnik_lijek, djelatna_tvar_lijek
 from sqlalchemy.orm import relationship
-from src.models.user import Korisnik
 
 from .base import Base
 

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
-from src.schemas.user_schema import UserCreate, UserUpdate, UserRead  
+from src.schemas.user_schema import UserCreate, UserUpdate 
 from src.services.user_service import UserService 
 from src.utils.dependencies import get_current_user
 from src.utils.dependencies import admin_required 
@@ -26,8 +25,10 @@ async def get_user(db: Session = Depends(get_db), current_user = Depends(get_cur
     return db_user
 
 @router.put("/{id}")
-async def update_user(id: int, user: UserUpdate, db: Session = Depends(get_db), current_user = Depends(admin_required)):
+async def update_user(id: int, user: UserUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    print("Updating user with ID:", id)
     db_user = await UserService.update_user(id, user, db)
+    print(db_user.ime)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -45,6 +46,7 @@ async def get_all_users(db: Session = Depends(get_db), current_user= Depends(adm
 
 @router.put("/me")
 async def update_me(user: UserUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    print("Updating current user with ID:", current_user.id)
     db_user = await UserService.update_user(current_user.id, user, db)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -52,6 +54,8 @@ async def update_me(user: UserUpdate, db: Session = Depends(get_db), current_use
 
 @router.delete("/me")
 async def delete_me(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    print(db_user.ime)
+
     db_user = await UserService.delete_user(current_user.id, db)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")

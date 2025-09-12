@@ -1,13 +1,11 @@
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Depends, FastAPI
-from fastapi.security import HTTPBearer
-from sqlalchemy.orm import Session
+from fastapi import  FastAPI
 
 load_dotenv()
 
 
-from src.services import reminder_service
+from src.services.lijek_service import LijekService
 from src.db.database import engine, get_db
 from src.models.base import Base
 Base.metadata.create_all(bind=engine)
@@ -66,17 +64,23 @@ from src.services.reminder_service import process_reminders
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    def job():
-        db = SessionLocal()
+    db = SessionLocal()
+
+    def reminders_job():
         import asyncio
         asyncio.run(process_reminders(db))
         db.close()
-    scheduler.add_job(job, 'interval', minutes=1)
+    def import_lijekovi_job():
+        LijekService.import_djelatne_tvari_from_excel(db, "lijekovi.xlsx")
+        LijekService.import_lijekovi_from_excel(db, "lijekovi.xlsx")
+    scheduler.add_job(reminders_job, 'interval', minutes=1)
+    scheduler.add_job(import_lijekovi_job, 'interval', weeks=1)
     scheduler.start()
 
 @app.on_event("startup")
 async def startup_event():
     print("Starting up...")
+
     start_scheduler()
 
 @app.get("/")

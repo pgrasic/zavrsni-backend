@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 class LijekCreate(BaseModel):
     naziv: str
-    idDjelatnaTvar: int | None = None
+    DjelatnaTvar: str | None = None
     nestasica: bool
     accepted: bool | None = None
 

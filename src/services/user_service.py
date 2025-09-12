@@ -40,13 +40,13 @@ class UserService:
         if not db_user:
             return None
         update_data = user_update.dict(exclude_unset=True)
+        print("Update data:", update_data)
         if "lozinka" in update_data:
             update_data["hashed_lozinka"] = pwd_context.hash(update_data.pop("lozinka"))
-        for key, value in update_data.items():
-            setattr(db_user, key, value)
+        print(update_data)
+        db.query(Korisnik).filter(Korisnik.id == user_id).update(update_data)
         db.commit()
-        db.refresh(db_user)
-        return db_user
+        return db.query(Korisnik).filter(Korisnik.id == user_id).first()
 
     @staticmethod
     async def delete_user(user_id: int, db: Session):

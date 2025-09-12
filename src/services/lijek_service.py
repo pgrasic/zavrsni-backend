@@ -1,5 +1,5 @@
+from fuzzywuzzy import fuzz
 from src.models.lijek import Lijek
-from src.models.user import Korisnik
 import pandas as pd
 from src.models.lijek import Lijek
 
@@ -9,7 +9,7 @@ class LijekService:
     @staticmethod
     async def import_lijekovi_from_excel(file_path: str, db):
         try:
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path, skiprows=9)
             required_columns = {"Naziv", "Status nestašice"}
             if not required_columns.issubset(df.columns):
                 raise ValueError(f"Excel file must contain the following columns: {required_columns}")
@@ -17,6 +17,7 @@ class LijekService:
                 "Naziv": "naziv",         
                 "Status nestašice": "nestasica" 
             }
+            print(df)
             imported = []
             for record in df.dropna().to_dict(orient="records"):
                 mapped = {}
@@ -29,7 +30,7 @@ class LijekService:
                 djelatna_tvar_row = db.query(DjelatnaTvar.id).filter_by(naziv=record.get("Djelatna tvar")).first()
                 if djelatna_tvar_row:
                     mapped["idDjelatnaTvar"] = djelatna_tvar_row.id
-                mapped["accepted"] = True  # Imported meds are always accepted
+                mapped["accepted"] = True 
                 existing = db.query(Lijek).filter_by(naziv=mapped["naziv"]).first()
                 if not existing:
                     lijek = Lijek(**mapped)
@@ -78,14 +79,36 @@ class LijekService:
 
     @staticmethod
     async def get_requested_meds(db):
-        return db.query(Lijek).filter_by(accepted=False).all()
+        response = []
+        lijekovi = db.query(Lijek).filter_by(accepted=False).all()
+        if not lijekovi:
+            return None
+        for lijek in lijekovi:
+            djelatna_tvar = db.query(DjelatnaTvar).filter_by(id=lijek.idDjelatnaTvar).first()
+            response.append({
+                "id": lijek.id,
+                "naziv": lijek.naziv,
+                "nestasica": lijek.nestasica,
+                "DjelatnaTvar": djelatna_tvar.naziv if djelatna_tvar else None
+            })
+        return response
 
     @staticmethod
     async def create_med(med_dict, db):
-        # Ako korisnik ne šalje idDjelatnaTvar, ne traži ga
         med_dict = dict(med_dict)
-        if "idDjelatnaTvar" in med_dict and med_dict["idDjelatnaTvar"] is None:
-            med_dict.pop("idDjelatnaTvar")
+
+       
+        closest_lijek = LijekService.get_closest_med(db, med_dict["naziv"], 0.9)
+        if closest_lijek:
+            return None
+        closest_tvar = LijekService.get_closest_tvar(db, med_dict.get("DjelatnaTvar", ""), 0.9)
+        if closest_tvar:
+            med_dict["idDjelatnaTvar"] = closest_tvar.id
+        else:
+            tvar = db.query(DjelatnaTvar).filter_by(naziv=med_dict.get("DjelatnaTvar", "")).first()
+            if tvar:
+                med_dict["idDjelatnaTvar"] = tvar.id
+        med_dict.pop("DjelatnaTvar", None)
         lijek = Lijek(**med_dict)
         db.add(lijek)
         db.commit()
@@ -102,6 +125,7 @@ class LijekService:
         db.refresh(lijek)
         return lijek
 
+    
     @staticmethod
     async def delete_med(id, db):
         lijek = db.query(Lijek).filter_by(id=id).first()
@@ -117,5 +141,29 @@ class LijekService:
 
     @staticmethod
     async def get_all_meds(db, current_user=None):
-        # Ignore current_user, always return all meds
         return db.query(Lijek).all()
+    
+    @staticmethod
+    def get_closest_med(db, query, min_ratio=0.0):
+        ilike_candidates = db.query(Lijek).filter(Lijek.naziv.ilike(f"%{query}%")).all()
+        best_med = None
+        best_score = -1.0
+        for med in ilike_candidates:
+            score = fuzz.ratio(query, med.naziv) / 100.0  # normalize 0–1
+            if score >= min_ratio and score > best_score:
+                best_score = score
+                best_med = med
+
+        return best_med
+    @staticmethod
+    def get_closest_tvar(db, query, min_ratio=0.0):
+        ilike_candidates = db.query(DjelatnaTvar).filter(DjelatnaTvar.naziv.ilike(f"%{query}%")).all()
+        best_tvar = None
+        best_score = -1.0
+        for tvar in ilike_candidates:
+            score = fuzz.ratio(query, tvar.naziv) / 100.0  # normalize 0–1
+            if score >= min_ratio and score > best_score:
+                best_score = score
+                best_tvar = tvar
+
+        return best_tvar
