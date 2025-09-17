@@ -63,7 +63,7 @@ alembic upgrade head
 
 ### 6. Start the backend
 ```sh
-uvicorn src.main:app --reload
+python -m src.main   
 ```
 
 ## API Endpoints
