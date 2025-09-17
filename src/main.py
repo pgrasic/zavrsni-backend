@@ -22,7 +22,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# JWT security scheme for Swagger UI
 app.openapi_schema = None
 
 def custom_openapi():

@@ -108,5 +108,5 @@ class KorisnikLijekService:
 		stmt = db.execute(
 			select(RemindersLog).where(RemindersLog.status == "confirmed")
 		)
-		# return ORM objects
+
 		return stmt.scalars().all()

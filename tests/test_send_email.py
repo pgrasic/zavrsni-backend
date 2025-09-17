@@ -1,11 +1,11 @@
 import pytest
-from src.utils.mail_config import send_email  # Adjust import to your mail sending function
+from src.utils.mail_config import send_email
 from src.models.user import Korisnik
 from src.models.lijek import Lijek
 
 @pytest.mark.asyncio
 def test_send_user_meds_email(db_session):
-    # Create a test user and some meds
+
     user = Korisnik(email="markog19@example.com", ime="Marko", prezime="Galic")
     db_session.add(user)
     db_session.commit()

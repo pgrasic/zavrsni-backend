@@ -9,7 +9,7 @@ class StatsCreate(BaseModel):
 class StatsRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    korisnik_id: int
-    lijek_id: int
+    korisnik_ime: str
+    lijek_ime: str
     doza: float
     vrijeme: str

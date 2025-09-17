@@ -149,7 +149,7 @@ class LijekService:
         best_med = None
         best_score = -1.0
         for med in ilike_candidates:
-            score = fuzz.ratio(query, med.naziv) / 100.0  # normalize 0–1
+            score = fuzz.ratio(query, med.naziv) / 100.0
             if score >= min_ratio and score > best_score:
                 best_score = score
                 best_med = med
@@ -161,7 +161,7 @@ class LijekService:
         best_tvar = None
         best_score = -1.0
         for tvar in ilike_candidates:
-            score = fuzz.ratio(query, tvar.naziv) / 100.0  # normalize 0–1
+            score = fuzz.ratio(query, tvar.naziv) / 100.0
             if score >= min_ratio and score > best_score:
                 best_score = score
                 best_tvar = tvar

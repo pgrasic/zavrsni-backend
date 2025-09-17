@@ -9,7 +9,7 @@ class KorisnikLijekCreate(BaseModel):
     kolicina: int = 1
 
 class KorisnikLijekRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # v2 replacement for orm_mode
+    model_config = ConfigDict(from_attributes=True)
     korisnik_id: int
     lijek_id: int
     pocetno_vrijeme: datetime

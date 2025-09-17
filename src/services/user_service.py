@@ -40,10 +40,13 @@ class UserService:
         if not db_user:
             return None
         update_data = user_update.dict(exclude_unset=True)
-        print("Update data:", update_data)
-        if "lozinka" in update_data:
-            update_data["hashed_lozinka"] = pwd_context.hash(update_data.pop("lozinka"))
         print(update_data)
+
+        print("Update data:", update_data)
+        if "lozinka" in update_data and update_data["lozinka"]:
+            print("Hashing new password")
+            update_data["hashed_lozinka"] = pwd_context.hash(update_data["lozinka"])
+            update_data.pop("lozinka")
         db.query(Korisnik).filter(Korisnik.id == user_id).update(update_data)
         db.commit()
         return db.query(Korisnik).filter(Korisnik.id == user_id).first()
