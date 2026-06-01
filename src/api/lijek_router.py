@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src.schemas.lijek_schema import LijekCreate
 from src.services.lijek_service import LijekService
@@ -9,13 +9,24 @@ from src.db.database import get_db
 router = APIRouter()
 
 
+@router.get("/search")
+async def search_meds(
+    q: str = Query("", min_length=0),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    if not q.strip():
+        return []
+    return await LijekService.search_meds(db, q.strip())
+
+
 @router.get("/requests")
 async def get_requested_meds(db: Session = Depends(get_db), current_user=Depends(admin_required)):
     return await LijekService.get_requested_meds(db)
 
 
 @router.get("/{id}")
-async def get_med(id: int, db: Session = Depends(get_db), current_user= Depends(admin_required)):
+async def get_med(id: int, db: Session = Depends(get_db), current_user= Depends(get_current_user)):
     db_lijek = await LijekService.get_med(id, db)
     if not db_lijek:
         raise HTTPException(status_code=404, detail="Lijek nije pronađen")
@@ -52,9 +63,9 @@ async def delete_med(id: int, db: Session = Depends(get_db), current_user= Depen
     return db_lijek 
 
 
-@router.get("") 
-async def get_all_meds(db: Session = Depends(get_db)):
-    return await LijekService.get_all_meds(db, None)
+@router.get("")
+async def get_all_meds(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return await LijekService.get_all_meds(db, current_user)
 
 
 

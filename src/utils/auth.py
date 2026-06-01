@@ -1,12 +1,31 @@
 import os
+import datetime
 import requests
-from jose import jwt
+from jose import jwt, JWTError
 from fastapi import HTTPException, status
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_API_AUDIENCE")
 ALGORITHMS = ["RS256", "HS256"]
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+
+ACTION_TOKEN_EXPIRE_HOURS = 24
+
+def create_action_token(korisnik_id: int, lijek_id: int, action: str) -> str:
+    payload = {
+        "sub": str(korisnik_id),
+        "lijek_id": lijek_id,
+        "action": action,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=ACTION_TOKEN_EXPIRE_HOURS),
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+def verify_action_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired action token")
 
 def get_jwk():
     jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"

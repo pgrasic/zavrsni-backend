@@ -47,7 +47,7 @@ class LijekService:
     @staticmethod
     async def import_djelatne_tvari_from_excel(file_path: str, db):
         try:
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path, skiprows=9)
             if "Djelatna tvar" not in df.columns:
                 raise ValueError("Excel file must contain the column: 'Djelatna tvar'")
             djelatne_tvari = set()
@@ -141,7 +141,16 @@ class LijekService:
 
     @staticmethod
     async def get_all_meds(db, current_user=None):
-        return db.query(Lijek).all()
+        return db.query(Lijek).filter(Lijek.accepted == True).all()
+
+    @staticmethod
+    async def search_meds(db, query: str, limit: int = 20):
+        return (
+            db.query(Lijek)
+            .filter(Lijek.naziv.ilike(f"%{query}%"), Lijek.accepted == True)
+            .limit(limit)
+            .all()
+        )
     
     @staticmethod
     def get_closest_med(db, query, min_ratio=0.0):
