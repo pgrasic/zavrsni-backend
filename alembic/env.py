@@ -59,6 +59,9 @@ print("Tables in Base metadata:", target_metadata.tables.keys())
 
 
 def get_url():
+    raw = os.getenv("DATABASE_URL")
+    if raw:
+        return raw.replace("postgresql://", "postgresql+psycopg2://", 1)
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_HOST = os.getenv("DB_HOST", "localhost")
