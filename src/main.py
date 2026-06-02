@@ -27,7 +27,7 @@ from src.api.korisnik_lijek_router import router as korisnik_lijek_router
 from src.api.stats_router import router as stats_router
 
 EXCEL_PATH = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "Halmed_Lijekovi_168bee89087875.xlsx")
+    os.path.join(os.path.dirname(__file__), "..", "data", "Halmed_Lijekovi_168bee89087875.xlsx")
 )
 
 
